@@ -1,5 +1,5 @@
 window.ABHAR_CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbxLSK2RXH2iMsXKR0Pbs3SttdwoZ5UIu5KMfnj3WiXUtRkm4PdAncRHpFHlKa2R852H/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbzkJGdl4Tx0vhoUzLAVMgmy7vSiAJBERNtftGh6P9LStjTCkBtH2YUh1Dns5Jd3qEtCUg/exec",
   WHATSAPP: "966503888992",
   WHATSAPP_DISPLAY: "0503888992",
   WHATSAPP_MESSAGE: "السلام عليكم، أتواصل معكم من خلال الموقع الإلكتروني لشركة إبهار الإعمار وأرغب في الاستفسار عن خدماتكم.",
