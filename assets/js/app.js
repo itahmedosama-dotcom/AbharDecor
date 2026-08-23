@@ -7,7 +7,7 @@ const defaultSettings={
   instagram:cfg.INSTAGRAM||'',facebook:cfg.FACEBOOK||'',tiktok:cfg.TIKTOK||'',snapchat:cfg.SNAPCHAT||'',x:cfg.X||''
 };
 let siteSettings={...defaultSettings},projects=[],categories=[],filtered=[],currentIndex=0,currentCategory='الكل',visibleCount=6;
-const gallery=document.getElementById('gallery'),filters=document.getElementById('filters'),loadMore=document.getElementById('loadMore'),backCategories=document.getElementById('backCategories'),activeCategoryTitle=document.getElementById('activeCategoryTitle');
+const gallery=document.getElementById('gallery'),filters=document.getElementById('filters'),loadMore=document.getElementById('loadMore'),backCategories=document.getElementById('backCategories'),activeCategoryTitle=document.getElementById('activeCategoryTitle'),projectResults=document.getElementById('projectResults');
 const escapeHtml=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]));
 function driveImage(url){if(!url)return'';const m=String(url).match(/\/d\/([\w-]+)/)||String(url).match(/[?&]id=([\w-]+)/);return m?`https://drive.google.com/thumbnail?id=${m[1]}&sz=w1600`:url}
 async function loadData(){
@@ -24,7 +24,7 @@ async function loadData(){
       projects=Array.isArray(jp.projects)?jp.projects:[]; categories=Array.isArray(jc.categories)?jc.categories:[]; siteSettings={...siteSettings,...(js.settings||{})};
     }catch(e){console.warn('Abhar API unavailable',e);projects=[];categories=[]}
   }
-  buildCategoryCards();selectCategory('الكل');applySettings();renderSocial();
+  buildCategoryCards();hideProjectResults();applySettings();renderSocial();
 }
 function categoryCover(cat){const own=driveImage(cat.image||'');if(own)return own;const p=projects.find(x=>x.category===cat.name && x.image);return p?driveImage(p.image):'assets/images/logo.jpeg'}
 function categoryCount(name){return projects.filter(x=>x.category===name).length}
@@ -33,16 +33,26 @@ function buildCategoryCards(){
   const orphanNames=[...new Set(projects.map(p=>p.category).filter(Boolean))].filter(n=>!usable.some(c=>c.name===n));
   const allCats=[...usable,...orphanNames.map(name=>({id:'legacy-'+name,name,description:'',image:''}))];
   if(!allCats.length){filters.innerHTML='<div class="empty">لا توجد تصنيفات حتى الآن.</div>';return}
-  filters.innerHTML=`<button class="category-card category-all active" data-cat="الكل"><span class="category-card-icon">✦</span><div><b>كل الأعمال</b><small>${projects.length} مشروع</small></div></button>`+allCats.map(c=>`<button class="category-card" data-cat="${escapeHtml(c.name)}"><img src="${categoryCover(c)}" alt="${escapeHtml(c.name)}"><span class="category-card-shade"></span><div class="category-card-copy"><b>${escapeHtml(c.name)}</b><small>${categoryCount(c.name)} مشروع</small></div></button>`).join('');
+  filters.innerHTML=allCats.map(c=>`<button class="category-card" data-cat="${escapeHtml(c.name)}"><img src="${categoryCover(c)}" alt="${escapeHtml(c.name)}"><span class="category-card-shade"></span><div class="category-card-copy"><b>${escapeHtml(c.name)}</b><small>${categoryCount(c.name)} مشروع</small></div></button>`).join('');
   filters.querySelectorAll('.category-card').forEach(b=>b.addEventListener('click',()=>selectCategory(b.dataset.cat)));
+}
+function hideProjectResults(){
+  currentCategory=''; filtered=[]; visibleCount=6;
+  if(projectResults) projectResults.hidden=true;
+  if(gallery) gallery.innerHTML='';
+  if(loadMore) loadMore.hidden=true;
+  filters.querySelectorAll('.category-card').forEach(x=>x.classList.remove('active'));
 }
 function selectCategory(cat){
   currentCategory=cat;visibleCount=6;
   filters.querySelectorAll('.category-card').forEach(x=>x.classList.toggle('active',x.dataset.cat===cat));
-  filtered=cat==='الكل'?projects:projects.filter(x=>x.category===cat);
+  filtered=projects.filter(x=>x.category===cat);
   const meta=categories.find(c=>c.name===cat);
-  activeCategoryTitle.innerHTML=cat==='الكل'?`<b>كل الأعمال</b><span>استعرض أحدث مشاريعنا (${projects.length})</span>`:`<b>${escapeHtml(cat)}</b><span>${escapeHtml((meta&&meta.description)||`${filtered.length} مشروع في هذا التصنيف`)}</span>`;
-  backCategories.hidden=cat==='الكل'; renderGallery();
+  activeCategoryTitle.innerHTML=`<b>${escapeHtml(cat)}</b><span>${escapeHtml((meta&&meta.description)||`${filtered.length} مشروع في هذا التصنيف`)}</span>`;
+  backCategories.hidden=false;
+  if(projectResults) projectResults.hidden=false;
+  renderGallery();
+  setTimeout(()=>projectResults&&projectResults.scrollIntoView({behavior:'smooth',block:'start'}),60);
 }
 function renderGallery(){
   const show=filtered.slice(0,visibleCount);
@@ -51,7 +61,7 @@ function renderGallery(){
   loadMore.hidden=visibleCount>=filtered.length;
 }
 loadMore.onclick=()=>{visibleCount+=6;renderGallery()};
-backCategories.onclick=()=>{selectCategory('الكل');filters.scrollIntoView({behavior:'smooth',block:'center'})};
+backCategories.onclick=()=>{hideProjectResults();filters.scrollIntoView({behavior:'smooth',block:'center'})};
 const lightbox=document.getElementById('lightbox');function openLightbox(i){currentIndex=i;const p=filtered[i];if(!p)return;document.getElementById('lightboxImg').src=driveImage(p.image);document.getElementById('lightboxTitle').textContent=p.title||'';document.getElementById('lightboxCategory').textContent=p.category||'';document.getElementById('lightboxDescription').textContent=p.description||'';lightbox.showModal()}
 document.getElementById('lightboxClose').onclick=()=>lightbox.close();document.getElementById('prevImg').onclick=()=>openLightbox((currentIndex-1+filtered.length)%filtered.length);document.getElementById('nextImg').onclick=()=>openLightbox((currentIndex+1)%filtered.length);lightbox.addEventListener('click',e=>{if(e.target===lightbox)lightbox.close()});
 const menuBtn=document.getElementById('menuBtn'),navLinks=document.getElementById('navLinks');menuBtn.onclick=()=>navLinks.classList.toggle('open');navLinks.querySelectorAll('a').forEach(a=>a.onclick=()=>navLinks.classList.remove('open'));
