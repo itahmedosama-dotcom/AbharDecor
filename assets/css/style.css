@@ -26,3 +26,8 @@ footer{background:#111315;color:#aaa;padding:34px 0 22px}.footer-main{display:gr
 
 /* V14: footer address accent */
 #footerAddress{color:var(--gold2);font-weight:700}
+
+/* V24 bilingual */
+.lang-switch{border:1px solid var(--gold);background:transparent;color:var(--gold);border-radius:999px;padding:7px 13px;cursor:pointer;font-weight:700;min-width:50px}.lang-switch:hover{background:var(--gold);color:#fff}
+html[dir="ltr"] body{text-align:left}html[dir="ltr"] .navlinks a:after{left:0;right:auto}html[dir="ltr"] .hero-points span:before{margin-left:0;margin-right:7px}html[dir="ltr"] .visual-number{left:auto;right:35px}html[dir="ltr"] .numbers-grid div{border-left:0;border-right:1px solid rgba(255,255,255,.28)}html[dir="ltr"] .numbers-grid div:last-child{border-right:0}html[dir="ltr"] .footer-contact{direction:ltr!important}html[dir="ltr"] .wa-contact{direction:ltr}html[dir="ltr"] .quote-form input,html[dir="ltr"] .quote-form select,html[dir="ltr"] .quote-form textarea{text-align:left}html[dir="ltr"] .section-head,html[dir="ltr"] .contact-grid,html[dir="ltr"] .location-grid,html[dir="ltr"] .split{direction:ltr}
+@media(max-width:980px){.lang-switch{margin-inline-start:auto}.nav-cta{display:none}}

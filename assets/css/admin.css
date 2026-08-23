@@ -27,3 +27,6 @@ body{display:block}.admin-shell{display:grid;grid-template-columns:250px 1fr;min
 .captcha-refresh:hover{border-color:var(--gold);color:var(--gold);transform:rotate(-12deg)}
 .captcha-input{margin-top:10px!important;text-transform:uppercase;letter-spacing:4px;font-family:Arial,sans-serif;text-align:center!important;font-size:17px!important}
 @media(max-width:480px){.login-card{padding:28px 24px}.captcha-code{gap:7px;font-size:21px}.captcha-row{grid-template-columns:48px 1fr}}
+
+/* V24 bilingual admin */
+.admin-lang-switch{width:100%;margin-bottom:18px;border:1px solid #4a4d50;background:transparent;color:#d6b579;padding:8px 10px;border-radius:8px;cursor:pointer;font:inherit}.admin-lang-switch:hover{background:#282b2f}.dual-text small{display:block;color:#999;font-weight:400;margin-top:2px}.admin-table td .dual-text b{display:block}.admin-shell[dir="ltr"],html[dir="ltr"] .admin-shell{direction:ltr}html[dir="ltr"] .login-card label{text-align:left}html[dir="ltr"] .admin-table th{text-align:left}html[dir="ltr"] .tracking-note{border-right:0;border-left:3px solid var(--gold)}html[dir="ltr"] .modal-close{left:auto;right:16px}html[dir="ltr"] .logout{text-align:left}
