@@ -6,7 +6,7 @@ const defaultSettings={
   googleMaps:cfg.GOOGLE_MAPS||'https://www.google.com/maps?q=26.3445835,50.0911806&z=17&hl=ar',
   instagram:cfg.INSTAGRAM||'',facebook:cfg.FACEBOOK||'',tiktok:cfg.TIKTOK||'',snapchat:cfg.SNAPCHAT||'',x:cfg.X||''
 };
-let siteSettings={...defaultSettings},projects=[],categories=[],filtered=[],currentIndex=0,currentCategory='الكل',visibleCount=6;
+let siteSettings={...defaultSettings},projects=[],categories=[],serviceTypes=[],filtered=[],currentIndex=0,currentCategory='الكل',visibleCount=6;
 const gallery=document.getElementById('gallery'),filters=document.getElementById('filters'),loadMore=document.getElementById('loadMore'),backCategories=document.getElementById('backCategories'),activeCategoryTitle=document.getElementById('activeCategoryTitle'),projectResults=document.getElementById('projectResults');
 const escapeHtml=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]));
 function driveImage(url){if(!url)return'';const m=String(url).match(/\/d\/([\w-]+)/)||String(url).match(/[?&]id=([\w-]+)/);return m?`https://drive.google.com/thumbnail?id=${m[1]}&sz=w1600`:url}
@@ -14,26 +14,32 @@ async function loadData(){
   if(cfg.API_URL){
     try{
       const stamp=Date.now();
-      const [rp,rc,rs]=await Promise.all([
+      const [rp,rc,rs,rst]=await Promise.all([
         fetch(`${cfg.API_URL}?action=list&_=${stamp}`,{cache:'no-store'}),
         fetch(`${cfg.API_URL}?action=categories&_=${stamp}`,{cache:'no-store'}),
-        fetch(`${cfg.API_URL}?action=settings&_=${stamp}`,{cache:'no-store'})
+        fetch(`${cfg.API_URL}?action=settings&_=${stamp}`,{cache:'no-store'}),
+        fetch(`${cfg.API_URL}?action=serviceTypes&_=${stamp}`,{cache:'no-store'})
       ]);
-      const jp=await rp.json(),jc=await rc.json(),js=await rs.json();
-      if(!jp.ok)throw new Error(jp.error||'Projects API error'); if(!jc.ok)throw new Error(jc.error||'Categories API error'); if(!js.ok)throw new Error(js.error||'Settings API error');
-      projects=Array.isArray(jp.projects)?jp.projects:[]; categories=Array.isArray(jc.categories)?jc.categories:[]; siteSettings={...siteSettings,...(js.settings||{})};
+      const jp=await rp.json(),jc=await rc.json(),js=await rs.json(),jst=await rst.json();
+      if(!jp.ok)throw new Error(jp.error||'Projects API error'); if(!jc.ok)throw new Error(jc.error||'Categories API error'); if(!js.ok)throw new Error(js.error||'Settings API error'); if(!jst.ok)throw new Error(jst.error||'Service types API error');
+      projects=Array.isArray(jp.projects)?jp.projects:[]; categories=Array.isArray(jc.categories)?jc.categories:[]; serviceTypes=Array.isArray(jst.serviceTypes)?jst.serviceTypes:[]; siteSettings={...siteSettings,...(js.settings||{})};
     }catch(e){console.warn('Abhar API unavailable',e);projects=[];categories=[]}
   }
-  buildCategoryCards();hideProjectResults();applySettings();renderSocial();
+  buildCategoryCards();hideProjectResults();applySettings();renderServiceTypes();renderSocial();
 }
+
+function renderServiceTypes(){const select=document.getElementById('qService');if(!select)return;const items=serviceTypes.filter(x=>x&&x.name);if(items.length)select.innerHTML=items.map(x=>`<option value="${escapeHtml(x.name)}">${escapeHtml(x.name)}</option>`).join('');}
+
 function categoryCover(cat){const own=driveImage(cat.image||'');if(own)return own;const p=projects.find(x=>x.category===cat.name && x.image);return p?driveImage(p.image):'assets/images/logo.jpeg'}
 function categoryCount(name){return projects.filter(x=>x.category===name).length}
 function buildCategoryCards(){
   const usable=categories.filter(c=>c && c.name);
   const orphanNames=[...new Set(projects.map(p=>p.category).filter(Boolean))].filter(n=>!usable.some(c=>c.name===n));
   const allCats=[...usable,...orphanNames.map(name=>({id:'legacy-'+name,name,description:'',image:''}))];
-  if(!allCats.length){filters.innerHTML='<div class="empty">لا توجد تصنيفات حتى الآن.</div>';return}
-  filters.innerHTML=allCats.map(c=>`<button class="category-card" data-cat="${escapeHtml(c.name)}"><img src="${categoryCover(c)}" alt="${escapeHtml(c.name)}"><span class="category-card-shade"></span><div class="category-card-copy"><b>${escapeHtml(c.name)}</b><small>${categoryCount(c.name)} مشروع</small></div></button>`).join('');
+  if(!allCats.length && !projects.length){filters.innerHTML='<div class="empty">لا توجد تصنيفات أو مشاريع حتى الآن.</div>';return}
+  const allCard=projects.length?`<button class="category-card category-all" data-cat="الكل" aria-label="عرض كل الأعمال"><span class="category-card-icon">✦</span><div><b>كل الأعمال</b><small>${projects.length} مشروع</small></div></button>`:'';
+  const categoryCards=allCats.map(c=>`<button class="category-card" data-cat="${escapeHtml(c.name)}"><img src="${categoryCover(c)}" alt="${escapeHtml(c.name)}"><span class="category-card-shade"></span><div class="category-card-copy"><b>${escapeHtml(c.name)}</b><small>${categoryCount(c.name)} مشروع</small></div></button>`).join('');
+  filters.innerHTML=allCard+categoryCards;
   filters.querySelectorAll('.category-card').forEach(b=>b.addEventListener('click',()=>selectCategory(b.dataset.cat)));
 }
 function hideProjectResults(){
@@ -43,12 +49,17 @@ function hideProjectResults(){
   if(loadMore) loadMore.hidden=true;
   filters.querySelectorAll('.category-card').forEach(x=>x.classList.remove('active'));
 }
+function categoryOrderMap(){const m={};categories.forEach((c,i)=>m[c.name]=Number(c.sortOrder||i+1));return m}
+function projectOrder(p){return Number(p.sortOrder||9999)}
 function selectCategory(cat){
   currentCategory=cat;visibleCount=6;
   filters.querySelectorAll('.category-card').forEach(x=>x.classList.toggle('active',x.dataset.cat===cat));
-  filtered=projects.filter(x=>x.category===cat);
+  const cm=categoryOrderMap();
+  filtered=(cat==='الكل'?[...projects]:projects.filter(x=>x.category===cat)).sort((a,b)=>cat==='الكل'?((cm[a.category]??9999)-(cm[b.category]??9999)||projectOrder(a)-projectOrder(b)):projectOrder(a)-projectOrder(b));
   const meta=categories.find(c=>c.name===cat);
-  activeCategoryTitle.innerHTML=`<b>${escapeHtml(cat)}</b><span>${escapeHtml((meta&&meta.description)||`${filtered.length} مشروع في هذا التصنيف`)}</span>`;
+  const title=cat==='الكل'?'كل الأعمال':cat;
+  const description=cat==='الكل'?`استعرض جميع مشاريعنا (${filtered.length})`:((meta&&meta.description)||`${filtered.length} مشروع في هذا التصنيف`);
+  activeCategoryTitle.innerHTML=`<b>${escapeHtml(title)}</b><span>${escapeHtml(description)}</span>`;
   backCategories.hidden=false;
   if(projectResults) projectResults.hidden=false;
   renderGallery();
