@@ -24,5 +24,5 @@ const waNumber=String(cfg.WHATSAPP||'966503888992').replace(/\D/g,'');
 const defaultWaMessage=cfg.WHATSAPP_MESSAGE||'السلام عليكم، أتواصل معكم من خلال الموقع الإلكتروني لشركة إبهار الإعمار وأرغب في الاستفسار عن خدماتكم.';
 const waUrl=text=>`https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`;
 document.getElementById('quoteForm').addEventListener('submit',e=>{e.preventDefault();const name=document.getElementById('qName').value,phone=document.getElementById('qPhone').value,service=document.getElementById('qService').value,details=document.getElementById('qDetails').value;const text=`السلام عليكم، أتواصل معكم من خلال الموقع الإلكتروني لشركة إبهار الإعمار وأرغب في طلب عرض سعر.\n\nالاسم: ${name}\nرقم التواصل: ${phone}\nنوع العمل: ${service}\nالتفاصيل: ${details}`;window.open(waUrl(text),'_blank','noopener')});
-const waButton=document.getElementById('waButton');waButton.href=waUrl(defaultWaMessage);
+const waButton=document.getElementById('waButton');waButton.href=waUrl(defaultWaMessage);const footerWhatsapp=document.getElementById('footerWhatsapp');if(footerWhatsapp)footerWhatsapp.href=waUrl(defaultWaMessage);
 loadProjects();
