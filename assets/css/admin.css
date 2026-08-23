@@ -9,3 +9,5 @@ body{display:block}.admin-shell{display:grid;grid-template-columns:250px 1fr;min
 
 /* V14: project editing */
 .row-actions{display:flex;gap:8px;align-items:center}.edit-project,.secondary{border:1px solid #c9a76f;background:#fff;color:#8e672f;padding:7px 12px;font:inherit;cursor:pointer}.edit-project:hover,.secondary:hover{background:#f7efe2}.form-actions{display:flex;gap:10px;align-items:center}.secondary{padding:11px 18px}.secondary[hidden]{display:none!important}#add{scroll-margin-top:24px}@media(max-width:800px){.project-row .row-actions{grid-column:1/-1}.row-actions button{flex:1}}
+
+#tracking{scroll-margin-top:24px}#trackingForm textarea[dir="ltr"]{font-family:Consolas,Monaco,monospace;font-size:12px;direction:ltr;text-align:left;white-space:pre}.tracking-note{margin:0 0 20px;background:#faf7f1;border-right:3px solid var(--gold);padding:12px 14px}
