@@ -19,14 +19,11 @@ async function refresh(){
       if(!js.ok)throw new Error(js.error||'تعذر تحميل الإعدادات');
       projects=Array.isArray(jp.projects)?jp.projects:[];
       settings={...settings,...(js.settings||{})};
-      $('#storageMode').textContent='Google Sheets';
       if(status){status.hidden=true;status.textContent='';}
     }catch(e){
-      $('#storageMode').textContent='غير متصل';
       if(status){status.hidden=false;status.textContent='تعذر الاتصال بالخادم: '+e.message;}
     }
   }else{
-    $('#storageMode').textContent='غير مربوط';
     if(status){status.hidden=false;status.textContent='يلزم إضافة رابط Google Apps Script داخل assets/js/config.js لحفظ التعديلات بشكل دائم.';}
   }
   draw();fillSettings();
