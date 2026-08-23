@@ -66,8 +66,10 @@
     <section class="section projects" id="projects">
       <div class="container">
         <div class="section-head reveal"><div><span class="section-kicker">معرض الأعمال</span><h2>مشاريع مختارة</h2></div><p>اختر التصنيف وشاهد الأعمال. الضغط على أي صورة يفتحها بحجم كامل مع تفاصيل المشروع.</p></div>
-        <div class="filters" id="filters"><button class="filter active" data-cat="الكل">الكل</button></div>
+        <div class="category-showcase" id="filters"><div class="loader">جاري تحميل التصنيفات...</div></div>
+        <div class="gallery-toolbar"><div id="activeCategoryTitle"><b>كل الأعمال</b><span>استعرض أحدث مشاريعنا</span></div><button class="back-categories" id="backCategories" type="button" hidden>عرض كل التصنيفات</button></div>
         <div id="gallery" class="gallery"><div class="loader">جاري تحميل الأعمال...</div></div>
+        <div class="gallery-more-wrap"><button class="btn ghost-dark" id="loadMore" type="button" hidden>عرض المزيد</button></div>
       </div>
     </section>
 
