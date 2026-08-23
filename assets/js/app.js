@@ -19,12 +19,24 @@ const gallery=document.getElementById('gallery'),filters=document.getElementById
 const escapeHtml=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]));
 function driveImage(url){if(!url)return'';const m=String(url).match(/\/d\/([\w-]+)/)||String(url).match(/[?&]id=([\w-]+)/);return m?`https://drive.google.com/thumbnail?id=${m[1]}&sz=w1600`:url}
 async function loadData(){
+  let apiLoaded=false;
   if(cfg.API_URL){
-    try{const r=await fetch(cfg.API_URL+'?action=list',{cache:'no-store'}),j=await r.json();if(j.ok&&Array.isArray(j.projects))projects=j.projects}catch(e){console.warn('Projects API unavailable',e)}
-    try{const r=await fetch(cfg.API_URL+'?action=settings',{cache:'no-store'}),j=await r.json();if(j.ok&&j.settings)siteSettings={...siteSettings,...j.settings}}catch(e){console.warn('Settings API unavailable',e)}
+    try{
+      const stamp=Date.now();
+      const [rp,rs]=await Promise.all([
+        fetch(`${cfg.API_URL}?action=list&_=${stamp}`,{cache:'no-store'}),
+        fetch(`${cfg.API_URL}?action=settings&_=${stamp}`,{cache:'no-store'})
+      ]);
+      const jp=await rp.json(),js=await rs.json();
+      if(!jp.ok)throw new Error(jp.error||'Projects API error');
+      if(!js.ok)throw new Error(js.error||'Settings API error');
+      projects=Array.isArray(jp.projects)?jp.projects:[];
+      siteSettings={...siteSettings,...(js.settings||{})};
+      apiLoaded=true;
+    }catch(e){console.warn('Abhar API unavailable',e)}
   }
-  if(!projects.length){const local=JSON.parse(localStorage.getItem('abhar_projects')||'[]');projects=local.length?local:fallbackProjects}
-  if(!cfg.API_URL){try{const localSettings=JSON.parse(localStorage.getItem('abhar_settings')||'{}');siteSettings={...siteSettings,...localSettings}}catch(e){}}
+  if(!cfg.API_URL){projects=fallbackProjects;}
+  else if(!apiLoaded){projects=[];}
   buildFilters();render('الكل');applySettings();renderSocial();
 }
 function buildFilters(){const cats=[...new Set(projects.map(x=>x.category).filter(Boolean))];filters.innerHTML='<button class="filter active" data-cat="الكل">الكل</button>'+cats.map(c=>`<button class="filter" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`).join('');filters.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{filters.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');render(b.dataset.cat)}))}
