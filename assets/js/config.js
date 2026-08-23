@@ -1,6 +1,5 @@
 window.ABHAR_CONFIG = {
-  // ضع رابط Google Apps Script Web App بعد نشره.
-  API_URL: "",
+  API_URL: "https://script.google.com/macros/s/AKfycbxLSK2RXH2iMsXKR0Pbs3SttdwoZ5UIu5KMfnj3WiXUtRkm4PdAncRHpFHlKa2R852H/exec",
   WHATSAPP: "966503888992",
   WHATSAPP_DISPLAY: "0503888992",
   WHATSAPP_MESSAGE: "السلام عليكم، أتواصل معكم من خلال الموقع الإلكتروني لشركة إبهار الإعمار وأرغب في الاستفسار عن خدماتكم.",
@@ -11,7 +10,5 @@ window.ABHAR_CONFIG = {
   FACEBOOK: "",
   TIKTOK: "",
   SNAPCHAT: "",
-  X: "",
-  DEMO_ADMIN_USERNAME: "admin",
-  DEMO_ADMIN_PASSWORD: "Abhar@2026"
+  X: ""
 };
