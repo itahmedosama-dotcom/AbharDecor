@@ -30,7 +30,7 @@ const DATA_CACHE_KEY='abhar_public_data_v28',DATA_CACHE_MAX_AGE=1000*60*60*24*7;
 function applyPayload(j){if(!j||!j.ok)return false;projects=Array.isArray(j.projects)?j.projects:[];categories=Array.isArray(j.categories)?j.categories:[];serviceTypes=Array.isArray(j.serviceTypes)?j.serviceTypes:[];siteServices=Array.isArray(j.siteServices)?j.siteServices:[];siteSettings={...siteSettings,...(j.settings||{})};return true}
 function readLocalData(){try{const raw=localStorage.getItem(DATA_CACHE_KEY);if(!raw)return null;const box=JSON.parse(raw);if(!box||!box.data)return null;if(Date.now()-Number(box.savedAt||0)>DATA_CACHE_MAX_AGE)return null;return box.data}catch(e){return null}}
 function saveLocalData(data){try{localStorage.setItem(DATA_CACHE_KEY,JSON.stringify({savedAt:Date.now(),data}))}catch(e){}}
-async function fetchFreshData(){if(!cfg.API_URL)return null;const r=await fetch(`${cfg.API_URL}?action=bootstrap&_=${Date.now()}`,{cache:'no-store',headers:{'Cache-Control':'no-cache'}});const j=await r.json();if(!j.ok)throw new Error(j.error||'API error');return j}
+async function fetchFreshData(){if(!cfg.API_URL)return null;const r=await fetch(`${cfg.API_URL}?action=bootstrap&_=${Date.now()}`,{cache:'no-store'});const j=await r.json();if(!j.ok)throw new Error(j.error||'API error');return j}
 async function loadData(){
   const cached=readLocalData();
   if(cached&&applyPayload(cached))renderAll();else renderAll();
